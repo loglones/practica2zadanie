@@ -3,8 +3,11 @@
     "description": "no",
     "autoload": {
         "psr-4": {
-            "Src\\": "core/Src/"
+            "Src\\": "core/Src/",
+            "App\\" : "app/"
         }
     },
-    "require": {}
+    "require": {
+        "php": "^7.4 | ^8.0"
+    }
 }
