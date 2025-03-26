@@ -1,0 +1,10 @@
+{
+    "name": "vendor/name",
+    "description": "no",
+    "autoload": {
+        "psr-4": {
+            "Src\\": "core/Src/"
+        }
+    },
+    "require": {}
+}
