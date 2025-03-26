@@ -31,7 +31,6 @@ class Route
         $class = self::$routes[$path][0];
         $action = self::$routes[$path][1];
 
-
         if(!class_exists($class)){
             throw new Error('This class does not exist');
         }

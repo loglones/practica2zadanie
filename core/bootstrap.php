@@ -2,6 +2,7 @@
 // Путь до директории с конфигурационными файлами
 const DIR_CONFIG = '/../config';
 require __DIR__ . '/../vendor/autoload.php';
+
 function getConfigs(string $path = DIR_CONFIG): array
 {
     $settings = [];
