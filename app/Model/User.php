@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Src\Auth\IdentityInterface;
 
 
-class User extends Model
+class User extends Model implements IdentityInterface
 {
     use HasFactory;
 
@@ -24,7 +24,7 @@ class User extends Model
             $user->save();
         });
     }
-    public function findIdentity(int $id)
+    public function findIdentity(int $id): ?IdentityInterface
     {
         return self::where('id', $id)->first();
     }
@@ -36,7 +36,7 @@ class User extends Model
     }
 
     //Возврат аутентифицированного пользователя
-    public function attemptIdentity(array $credentials)
+    public function attemptIdentity(array $credentials): ?IdentityInterface
     {
         return self::where(['login' => $credentials['login'],
             'password' => md5($credentials['password'])])->first();

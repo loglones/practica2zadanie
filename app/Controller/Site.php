@@ -22,8 +22,14 @@ class Site
     }
     public function signup(Request $request): string
     {
-        if ($request->method === 'POST' && User::create($request->all())) {
-            app()->route->redirect('/go');
+        if ($request->method === 'POST') {
+            try {
+                User::create($request->all());
+                app()->route->redirect('/hello');
+                return ''; // Явный возврат пустой строки после редиректа
+            } catch (\Exception $e) {
+                return new View('site.signup', ['message' => 'Ошибка регистрации']);
+            }
         }
         return new View('site/signup');
 

@@ -12,8 +12,8 @@ class Auth
     public static function init(IdentityInterface $user): void
     {
         self::$user = $user;
-        if (self::user()) {
-            self::login(self::user());
+        if ($user = self::user()) {
+            self::login($user);
         }
     }
 
