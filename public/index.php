@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);//Включаем запрет на неявное преобразование типов
-
+session_start();
 try {
     //Создаем экземпляр приложения и запускаем е
     $app = require_once __DIR__ . '/../core/bootstrap.php';
