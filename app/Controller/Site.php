@@ -2,13 +2,15 @@
 namespace App\Controller;
 
 use App\Model\Post;
+use Src\Request;
 use Src\View;
 class Site
 {
-    public function index() :string
+    public function index(Request $request) :string
     {
-        $posts = Post::all();
+        $posts = Post::where('id', $request->id)->get();
         return (new View())->render('site/post', ['posts' => $posts]);
+
     }
     public function hello() :string
     {
