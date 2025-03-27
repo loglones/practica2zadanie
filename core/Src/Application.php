@@ -3,7 +3,9 @@
 namespace Src;
 
 use Error;
-
+use Illuminate\Container\Container;
+use Illuminate\Database\Capsule\Manager as Capsule;
+use Illuminate\Events\Dispatcher;
 class Application
 {
     private Settings $settings;
@@ -29,7 +31,6 @@ class Application
     private function dbRun()
     {
         $this->dbManager->addConnection($this->settings->getDbSetting());
-        $this->dbManager->setEventDispatcher(new Dispatcher(new Container));
         $this->dbManager->setAsGlobal();
         $this->dbManager->bootEloquent();
     }
