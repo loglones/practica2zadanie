@@ -5,16 +5,16 @@
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title><?= $title ?? 'Pop it MVC' ?></title>
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/public/css/style.css">
 </head>
 <body>
 <header class="contForBackgroundPhoto">
     <div class="wraper firstBlockOfHeader">
         <div class="contForButtonLogin">
-            <?php if (app()->auth::check()): ?>
-                <button class="headerButtonLogin" onclick="window.location.href='<?= app()->route->getUrl('/logout') ?>'">Выход</button>
+            <?php if (isset($auth) && $auth::check()): ?>
+                <button class="headerButtonLogin" onclick="window.location.href='/logout'">Выход</button>
             <?php else: ?>
-                <button class="headerButtonLogin" onclick="window.location.href='<?= app()->route->getUrl('/login') ?>'">Вход</button>
+                <button class="headerButtonLogin" onclick="window.location.href='/login'">Вход</button>
             <?php endif; ?>
         </div>
         <div class="mainButtonsForSearchAndMakeStudents">
