@@ -1,29 +1,43 @@
 <?php
 use Src\Route;
-use App\Controller\{SiteController, AuthController, AdminController, EmployeeController};
+use Src\View;
+use App\Controller\{AuthController, AdminController, EmployeeController};
 
-// Аутентификация
-Route::add(['GET', 'POST'], '/login', [AuthController::class, 'login']);
-Route::add('GET', '/logout', [AuthController::class, 'logout']);
+$route = app()->route;
 
-// Админка
-Route::group('/admin', function () {
-    Route::add('GET', '', [AdminController::class, 'index'])->middleware('auth:admin');
-    Route::add(['GET', 'POST'], '/register', [AdminController::class, 'createEmployee'])->middleware('auth:admin');
-});
+// 1. Аутентификация (публичные маршруты)
+$route->add(['GET', 'POST'], '/login', [AuthController::class, 'login']);
+$route->add('GET', '/logout', [AuthController::class, 'logout']);
 
-// Сотрудник деканата
-Route::group('/employee', function () {
-    Route::add('GET', '', [EmployeeController::class, 'index'])->middleware('auth:employee');
-    Route::add(['GET', 'POST'], '/students/create', [EmployeeController::class, 'createStudent'])->middleware('auth:employee');
-    // Другие маршруты сотрудника
-});
-
-// Главная
-Route::add('GET', '/', function () {
-    if (app()->auth::check()) {
-        $user = app()->auth::user();
-        app()->route->redirect($user->role === 'admin' ? '/admin' : '/employee');
+// 2. Главный маршрут (публичный)
+$route->add('GET', '/', [
+    function() {
+        if (app()->auth::check()) {
+            $user = app()->auth::user();
+            app()->route->redirect(
+                $user->role === 'admin' ? '/admin-panel' : '/employee-area'
+            );
+            return null;
+        }
+        return new View('site.welcome');
     }
-    return (new View())->render('site.welcome');
+]);
+
+// 3. Админская зона (защищённые маршруты)
+$route->group('/admin-panel', function() use ($route) {
+    $route->add('GET', '', [AdminController::class, 'dashboard'])->middleware('auth:admin');
+    $route->add(['GET', 'POST'], '/add-employee', [AdminController::class, 'createEmployee'])->middleware('auth:admin');
 });
+
+// 4. Зона сотрудника (защищённые маршруты)
+$route->group('/employee-area', function() use ($route) {
+    $route->add('GET', '', [EmployeeController::class, 'dashboard'])->middleware('auth:employee');
+    $route->add(['GET', 'POST'], '/add-student', [EmployeeController::class, 'createStudent'])->middleware('auth:employee');
+});
+//use Src\Route;
+//
+//Route::add('GET', '/test', function() {
+//    return 'Test page works!';
+//});
+//
+//Route::add(['GET', 'POST'], '/login', [AuthController::class, 'login']);

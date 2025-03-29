@@ -3,6 +3,7 @@ namespace Src;
 
 class Session
 {
+
     public static function set($name, $value) :void
     {
         $_SESSION[$name] = $value;
@@ -16,5 +17,6 @@ class Session
     {
         unset($_SESSION[$name]);
     }
+
 
 }

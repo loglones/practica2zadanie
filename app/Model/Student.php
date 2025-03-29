@@ -15,4 +15,13 @@ class Student extends Model
     {
         return $this->belongsTo(Group::class);
     }
+    public function disciplines()
+    {
+        return $this->belongsToMany(Discipline::class, 'student_discipline');
+    }
+
+    public function grades()
+    {
+        return $this->hasMany(Grade::class);
+    }
 }
