@@ -9,7 +9,6 @@ class RoleMiddleware
     public function handle(Request $request, string $role)
     {
         $user = Auth::user();
-
         if (!$user || $user->role !== $role) {
             app()->route->redirect('/');
         }
