@@ -42,7 +42,7 @@
             </div>
         </div>
         <div class="contForLogo">
-            <a href="<?= app()->route->getUrl('/') ?>"><img class="logo" src="/image/graduation.png" alt="Логотип"></a>
+            <a href="<?= app()->route->getUrl('/') ?>"><img class="logo" src="/public/image/graduation.png" alt="Логотип"></a>
         </div>
     </div>
 </header>
