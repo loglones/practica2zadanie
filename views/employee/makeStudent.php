@@ -34,9 +34,9 @@
             <div class="classForSettingForm">
                 <label for="group">Выберите группу:</label>
                 <select class="inputForm" name="group" id="group">
-                    <?php foreach ($groups as $group): ?>
-                        <option value="<?= $group->id ?>"><?= $group->name ?></option>
-                    <?php endforeach; ?>
+                    <option value="423" selected>423</option>
+                    <option value="421">421</option>
+                    <option value="426">426</option>
                 </select>
             </div>
             <div>
