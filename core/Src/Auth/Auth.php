@@ -12,8 +12,8 @@ class Auth
     public static function init(IdentityInterface $user): void
     {
         self::$user = $user;
-        if ($user = self::user()) {
-            self::login($user);
+        if (self::user()) {
+            self::login(self::user());
         }
     }
 
@@ -27,18 +27,11 @@ class Auth
     //Аутентификация пользователя и вход по учетным данным
     public static function attempt(array $credentials): bool
     {
-        $user = self::$user->where('login', $credentials['login'])->first();
-
-        if (!$user) {
-            error_log("User not found: " . $credentials['login']);
-            return false;
+        if ($user = self::$user->attemptIdentity($credentials)) {
+            self::login($user);
+            return true;
         }
-
-        error_log("DB pass: " . $user->password);
-        error_log("Input pass: " . $credentials['password']);
-        error_log("Verify result: " . (int)password_verify($credentials['password'], $user->password));
-
-        return password_verify($credentials['password'], $user->password);
+        return false;
     }
 
     //Возврат текущего аутентифицированного пользователя
@@ -63,5 +56,4 @@ class Auth
         Session::clear('id');
         return true;
     }
-
 }

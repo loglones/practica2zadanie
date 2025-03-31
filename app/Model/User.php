@@ -20,8 +20,9 @@ class User extends Model implements IdentityInterface
 
     protected static function booted()
     {
-        static::creating(function ($user) {
-            $user->password = password_hash($user->password, PASSWORD_DEFAULT); // Используем безопасное хеширование
+        static::created(function ($user) {
+            $user->password = md5($user->password);
+            $user->save();
         });
     }
 
@@ -37,35 +38,7 @@ class User extends Model implements IdentityInterface
 
     public function attemptIdentity(array $credentials): ?IdentityInterface
     {
-        // Временная "заглушка" для теста
-        $testUsers = [
-            'admin' => [
-                'id' => 1,
-                'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // пароль "password"
-                'role' => 'admin'
-            ],
-            'employee' => [
-                'id' => 2,
-                'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
-                'role' => 'employee'
-            ]
-        ];
-
-        if (isset($testUsers[$credentials['login']]) &&
-            password_verify($credentials['password'], $testUsers[$credentials['login']]['password'])) {
-            $user = new self();
-            $user->id = $testUsers[$credentials['login']]['id'];
-            $user->role = $testUsers[$credentials['login']]['role'];
-            return $user;
-        }
-
-        return null;
+        return self::where(['login' => $credentials['login'],
+            'password' => md5($credentials['password'])])->first();
     }
-//    public function attemptIdentity(array $credentials): ?IdentityInterface
-//    {
-//        return self::where([
-//            'login' => $credentials['login'],
-//            'password' => md5($credentials['password']) // Временное решение
-//        ])->first();
-//    }
 }
