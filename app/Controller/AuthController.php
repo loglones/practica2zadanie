@@ -12,6 +12,7 @@ class AuthController
     {
         if ($request->method === 'POST') {
             if (Auth::attempt($request->all())) {
+                error_log("Login attempt: " . print_r($request->all(), true));
                 $user = Auth::user();
                 if ($user->role === 'admin') {
                     app()->route->redirect('/admin');

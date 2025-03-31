@@ -27,11 +27,18 @@ class Auth
     //Аутентификация пользователя и вход по учетным данным
     public static function attempt(array $credentials): bool
     {
-        if ($user = self::$user->attemptIdentity($credentials)) {
-            self::login($user);
-            return true;
+        $user = self::$user->where('login', $credentials['login'])->first();
+
+        if (!$user) {
+            error_log("User not found: " . $credentials['login']);
+            return false;
         }
-        return false;
+
+        error_log("DB pass: " . $user->password);
+        error_log("Input pass: " . $credentials['password']);
+        error_log("Verify result: " . (int)password_verify($credentials['password'], $user->password));
+
+        return password_verify($credentials['password'], $user->password);
     }
 
     //Возврат текущего аутентифицированного пользователя

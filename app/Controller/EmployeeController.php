@@ -17,7 +17,7 @@ class EmployeeController
         if ($request->method === 'POST') {
             try {
                 Student::create($request->all());
-                app()->route->redirect('/employee/students');
+                app()->route->redirect('/employee/makeStudents');
             } catch (\Exception $e) {
                 return new View('employee.create-student', [
                     'groups' => Group::all(),
