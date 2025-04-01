@@ -13,8 +13,8 @@
                 <input class="inputForm" type="text" id="name" name="name" placeholder="Введите имя">
             </div>
             <div class="classForSettingForm">
-                <label for="thirdname">Отчество</label>
-                <input class="inputForm" type="text" id="thirdname" name="thirdname" placeholder="Введите Отчество">
+                <label for="patronymic">Отчество</label>
+                <input class="inputForm" type="text" id="patronymic" name="patronymic" placeholder="Введите Отчество">
             </div>
             <div class="classForSettingForm">
                 <label for="gender">Выберите пол:</label>
@@ -32,8 +32,8 @@
                 <input class="inputForm" type="text" id="address" name="address" placeholder="Введите адрес проживания">
             </div>
             <div class="classForSettingForm">
-                <label for="group">Выберите группу:</label>
-                <select class="inputForm" name="group" id="group">
+                <label for="group_id">Выберите группу:</label>
+                <select class="inputForm" name="group_id" id="group_id">
                     <option value="423" selected>423</option>
                     <option value="421">421</option>
                     <option value="426">426</option>

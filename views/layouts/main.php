@@ -11,16 +11,17 @@
 <header class="contForBackgroundPhoto">
     <div class="wraper firstBlockOfHeader">
         <div class="contForButtonLogin">
-            <?php if (!app()->auth::check()) ?>
-                <button class="headerButtonLogin" onclick="window.location.href='/logout'">Выход</button>
-            <?php else ?>
+            <?php if (app()->auth::check()): ?>
+                <button class="headerButtonLogin" onclick="window.location.href='<?= app()->route->getUrl('/logout') ?>'">Выход</button>
+            <?php else: ?>
                 <button class="headerButtonLogin" onclick="window.location.href='<?= app()->route->getUrl('/login') ?>'">Вход</button>
             <?php endif; ?>
         </div>
+        <?php if (app()->auth::check()): ?>
         <div class="mainButtonsForSearchAndMakeStudents">
             <div class="upperRowForButtons">
                 <div class="contForButtonMakeStudents">
-                    <button class="headerButton" onclick="window.location.href='<?= app()->route->getUrl('/makeStudents') ?>'">Создать студента</button>
+                    <button class="headerButton" onclick="window.location.href='<?= app()->route->getUrl('/makeStudent') ?>'">Создать студента</button>
                 </div>
                 <div class="contForButtonMakeStudents">
                     <button class="headerButton" onclick="window.location.href='<?= app()->route->getUrl('/makeGroup') ?>'">Создание группы</button>
@@ -41,8 +42,9 @@
                 </div>
             </div>
         </div>
+        <?php endif; ?>
         <div class="contForLogo">
-            <a href="<?= app()->route->getUrl('/') ?>"><img class="logo" src="../../public/image/graduation.png" alt="Логотип"></a>
+            <a href="<?= app()->route->getUrl('/hello') ?>"><img class="logo" src="../../../practic2zadanie/public/image/graduation.png" alt="Логотип"></a>
         </div>
     </div>
     <style>
@@ -67,7 +69,7 @@
         .contForBackgroundPhoto{
             width: 100vw;
             height: 44vh;
-            background-image: url(../../public/image/studento4ki.png);
+            background-image: url(../../../practic2zadanie/public/image/studento4ki.png);
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
