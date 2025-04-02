@@ -109,6 +109,15 @@
             height: 5.5556vh;
             width: 3.1250vw;
         }
+        .error {
+            color: red;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        input:invalid {
+            border-color: red;
+        }
         .contForButtonLogin{
             height:  11.5741vh;
             display: flex;

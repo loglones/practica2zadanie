@@ -20,20 +20,36 @@ class Authorised
             throw new \RuntimeException('No groups found in database');
         }
         if ($request->method === 'POST') {
+            $validator = new \App\Validators\ValidatorRus();
+            $rules = [
+                'surname' => ['required', 'russian', 'name'],
+                'name' => ['required', 'russian', 'name'],
+                'patronymic' => ['russian', 'name'],
+                'gender' => ['required'],
+                'address' => ['required', 'address'],
+                'group_id' => ['required']
+            ];
             $group = Group::where('name', $request->group_id)->first();
-            Student::create([
-                'surname' => $request->surname,
-                'name' => $request->name,
-                'patronymic' => $request->patronymic,
-                'gender' => $request->gender,
-                'dateBirthday' => $request->dateBirthday,
-                'address' => $request->address,
-                'group_id' => $group->id // Используем реальный ID группы
-            ]);
-            return app()->route->redirect('/hello');
+            if ($validator->validate($request->all(), $rules)) {
+                // Все данные валидны, создаем студента
+                Student::create([
+                    'surname' => $request->surname,
+                    'name' => $request->name,
+                    'patronymic' => $request->patronymic,
+                    'gender' => $request->gender,
+                    'address' => $request->address,
+                    'group_id' => $request->group_id
+                ]);
 
-
-
+                return app()->route->redirect('/hello');
+            } else {
+                // Есть ошибки валидации
+                return (string) new View('employee.makeStudent', [
+                    'groups' => $groups,
+                    'errors' => $validator->errors(),
+                    'old' => $request->all()
+                ]);
+            }
         }
 
         // Если метод GET, показываем форму
