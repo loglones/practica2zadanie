@@ -9,6 +9,7 @@
     },
     "require": {
         "php": "^8.1",
+        "ext-ctype": "*",
         "illuminate/database": "^10.48",
         "illuminate/events": "^10.48",
         "nikic/fast-route": "^1.3"

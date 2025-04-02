@@ -58,13 +58,25 @@ class Authorised
     public function makeGroup(Request $request): string
     {
         if ($request->method === 'POST') {
-            Group::create([
-                'name' => $request->group_number
-            ]);
-            return app()->route->redirect('/hello');
+            $validator = new \App\Validators\ValidatorOnlyNum();
+
+            if ($validator->validate($request->all())) {
+                // Валидация пройдена
+                Group::create([
+                    'name' => $request->name
+                ]);
+
+                return app()->route->redirect('/hello');
+            } else {
+                // Есть ошибки валидации
+                return (string) new View('employee.makeGroup', [
+                    'error' => $validator->getFirstError(),
+                    'oldName' => $request->name
+                ]);
+            }
         }
 
-        // Если метод GET, показываем форму
+        // GET запрос
         return (string) new View('employee.makeGroup');
     }
     public function makeDiscipline(Request $request): string
