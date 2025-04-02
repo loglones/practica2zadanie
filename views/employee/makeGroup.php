@@ -1,5 +1,5 @@
 <div class="contForMakeGroupForm wraper">
-        <form class="makeGroupForm" action="/makeGroup" method="post">
+        <form class="makeGroupForm"  method="post">
             <div class="contForTitleForm">
                 <p class="titleMakeStudent">Создание группы</p>
             </div>
@@ -11,4 +11,4 @@
                 <button class="btnMakeGroup" type="submit">Создать</button>
             </div>
         </form>
-    </div>
+</div>
