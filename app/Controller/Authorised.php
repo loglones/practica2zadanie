@@ -82,13 +82,24 @@ class Authorised
     public function makeDiscipline(Request $request): string
     {
         if ($request->method === 'POST') {
-            Discipline::create([
-                'name' => $request->makeGroup
-            ]);
-            return app()->route->redirect('/hello');
+            $validator = new \App\Validators\DisciplineValidator();
+
+            if ($validator->validate($request->all())) {
+                // Валидация успешна
+                Discipline::create([
+                    'name' => $request->makeGroup
+                ]);
+
+                return app()->route->redirect('/hello');
+            } else {
+                // Есть ошибки валидации
+                return (string) new View('employee.makeDiscipline', [
+                    'error' => $validator->getFirstError(),
+                    'oldName' => $request->makeGroup
+                ]);
+            }
         }
 
-        // GET запрос - показываем форму
         return (string) new View('employee.makeDiscipline');
     }
     public function showStudentGrades(Request $request): string
