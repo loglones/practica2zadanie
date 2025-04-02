@@ -44,7 +44,7 @@ class Authorised
                 return app()->route->redirect('/hello');
             } else {
                 // Есть ошибки валидации
-                return (string) new View('employee.makeStudent', [
+                return (string)new View('employee.makeStudent', [
                     'groups' => $groups,
                     'errors' => $validator->errors(),
                     'old' => $request->all()
@@ -53,8 +53,9 @@ class Authorised
         }
 
         // Если метод GET, показываем форму
-        return (string) new View('employee.makeStudent', ['groups' => $groups]);
+        return (string)new View('employee.makeStudent', ['groups' => $groups]);
     }
+
     public function makeGroup(Request $request): string
     {
         if ($request->method === 'POST') {
@@ -69,7 +70,7 @@ class Authorised
                 return app()->route->redirect('/hello');
             } else {
                 // Есть ошибки валидации
-                return (string) new View('employee.makeGroup', [
+                return (string)new View('employee.makeGroup', [
                     'error' => $validator->getFirstError(),
                     'oldName' => $request->name
                 ]);
@@ -77,8 +78,9 @@ class Authorised
         }
 
         // GET запрос
-        return (string) new View('employee.makeGroup');
+        return (string)new View('employee.makeGroup');
     }
+
     public function makeDiscipline(Request $request): string
     {
         if ($request->method === 'POST') {
@@ -93,15 +95,16 @@ class Authorised
                 return app()->route->redirect('/hello');
             } else {
                 // Есть ошибки валидации
-                return (string) new View('employee.makeDiscipline', [
+                return (string)new View('employee.makeDiscipline', [
                     'error' => $validator->getFirstError(),
                     'oldName' => $request->makeGroup
                 ]);
             }
         }
 
-        return (string) new View('employee.makeDiscipline');
+        return (string)new View('employee.makeDiscipline');
     }
+
     public function showStudentGrades(Request $request): string
     {
         // Получаем все дисциплины
@@ -122,13 +125,13 @@ class Authorised
 
             // Получаем оценки по выбранным параметрам
             $grades = Grade::with(['student', 'discipline'])
-                ->whereHas('discipline', function($query) use ($disciplineName) {
+                ->whereHas('discipline', function ($query) use ($disciplineName) {
                     $query->where('name', $disciplineName);
                 })
-                ->when($hours, function($query, $hours) {
+                ->when($hours, function ($query, $hours) {
                     return $query->where('hours', $hours);
                 })
-                ->when($controlType, function($query, $controlType) {
+                ->when($controlType, function ($query, $controlType) {
                     return $query->where('control_type', $controlType);
                 })
                 ->get();
@@ -145,7 +148,7 @@ class Authorised
                 ];
             }
 
-            return (string) new View('employee.studentGrades', [
+            return (string)new View('employee.studentGrades', [
                 'disciplines' => $disciplines,
                 'controlTypes' => $controlTypes,
                 'results' => $results,
@@ -156,11 +159,12 @@ class Authorised
         }
 
         // GET запрос - показываем форму
-        return (string) new View('employee.studentGrades', [
+        return (string)new View('employee.studentGrades', [
             'disciplines' => $disciplines,
             'controlTypes' => $controlTypes
         ]);
     }
+
     public function showGroupGrades(Request $request): string
     {
         // Получаем все группы и дисциплины для выпадающих списков
@@ -170,14 +174,14 @@ class Authorised
         if ($request->method === 'POST') {
             // Получаем выбранные значения из формы
             $disciplineName = $request->checkDisciplene;
-            $groupName = $request->group_name; // Изменим name в форме на group_name
+            $groupName = $request->group_name;
 
             // Ищем оценки для выбранной группы и дисциплины
             $grades = Grade::with(['student', 'discipline', 'student.group'])
-                ->whereHas('discipline', function($query) use ($disciplineName) {
+                ->whereHas('discipline', function ($query) use ($disciplineName) {
                     $query->where('name', $disciplineName);
                 })
-                ->whereHas('student.group', function($query) use ($groupName) {
+                ->whereHas('student.group', function ($query) use ($groupName) {
                     $query->where('name', $groupName);
                 })
                 ->get();
@@ -195,7 +199,7 @@ class Authorised
                 ];
             }
 
-            return (string) new View('employee.groupGrades', [
+            return (string)new View('employee.groupGrades', [
                 'groups' => $groups,
                 'disciplines' => $disciplines,
                 'results' => $results,
@@ -205,11 +209,12 @@ class Authorised
         }
 
         // GET запрос - показываем форму
-        return (string) new View('employee.groupGrades', [
+        return (string)new View('employee.groupGrades', [
             'groups' => $groups,
             'disciplines' => $disciplines
         ]);
     }
+
     public function showGroupDisciplines(Request $request): string
     {
         $groups = Group::all();
@@ -226,66 +231,46 @@ class Authorised
             // 3. Получаем дисциплины через отношение
             $disciplines = $group->disciplines;
 
-            return (string) new View('employee.groupDisciplines', [
+            return (string)new View('employee.groupDisciplines', [
                 'groups' => $groups,
                 'disciplines' => $disciplines,
                 'selectedGroup' => $request->group
             ]);
         }
 
-        return (string) new View('employee.groupDisciplines', [
+        return (string)new View('employee.groupDisciplines', [
             'groups' => $groups,
             'disciplines' => collect()
         ]);
     }
+
     public function register(Request $request): string
     {
 
 
         // Обработка POST-запроса
         if ($request->method === 'POST') {
-            try {
-                // Отладочный вывод (временный)
-                error_log('Received data: ' . print_r($request->all(), true));
+            $validator = new \App\Validators\RegisterValidator();
 
-                // Проверка данных
-                $name = trim($request->name ?? '');
-                $login = trim($request->login ?? '');
-                $password = trim($request->password ?? '');
-
-                if ($name === '' || $login === '' || $password === '') {
-                    throw new \Exception('Все поля обязательны для заполнения');
-                }
-
-                if (strlen($password) < 6) {
-                    throw new \Exception('Пароль должен содержать минимум 6 символов');
-                }
-
-                if (User::where('login', $login)->exists()) {
-                    throw new \Exception('Этот логин уже занят');
-                }
-
-                // Создание пользователя
-                $user = new User([
-                    'name' => $name,
-                    'login' => $login,
-                    'password' => md5($password),
+            if ($validator->validate($request->all())) {
+                // Валидация успешна
+                User::create([
+                    'name' => $request->name,
+                    'login' => $request->login,
+                    'password' => md5($request->password),
                     'role' => 'employee'
                 ]);
 
-                if ($user->save()) {
-                    $message = 'Сотрудник успешно зарегистрирован';
-                } else {
-                    throw new \Exception('Ошибка при сохранении пользователя');
-                }
-            } catch (\Exception $e) {
-                $message = $e->getMessage();
-                error_log('Registration error: ' . $e->getMessage());
+                return app()->route->redirect('/hello');
+            } else {
+                // Есть ошибки валидации
+                return (string)new View('admin.register', [
+                    'error' => $validator->getFirstError(),
+                    'old' => $request->all()
+                ]);
             }
         }
 
-        return (string) new View('admin.register', [
-            'message' => $message ?? null
-        ]);
+        return (string)new View('admin.register');
     }
 }
