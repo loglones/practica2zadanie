@@ -1,5 +1,8 @@
 <div class="contForMakeGroupForm wraper">
     <form class="makeGroupForm" method="post">
+
+        <?php $view = new Src\View(); ?>
+        <?= $view->generateCsrfField() ?>
         <div class="contForTitleForm">
             <p class="titleMakeStudent">Создание дисциплины</p>
         </div>

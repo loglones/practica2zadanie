@@ -13,7 +13,12 @@ class Middleware
     use SingletonTrait;
 
     private RouteCollector $middlewareCollector;
+    private array $globalMiddlewares = [];
 
+    public function addGlobal(string $middleware): void
+    {
+        $this->globalMiddlewares[] = $middleware;
+    }
     public function add($httpMethod, string $route, array $action): void
     {
         $this->middlewareCollector->addRoute($httpMethod, $route, $action);
@@ -34,16 +39,21 @@ class Middleware
     public function runMiddlewares(string $httpMethod, string $uri): Request
     {
         $request = new Request();
-        //Получаем список всех разрешенных классов middlewares из настроек приложения
-        $routeMiddleware = app()->settings->app['routeMiddleware'];
 
-        //Перебираем все middlewares для текущего адреса
+        // Сначала выполняем глобальные middleware
+        foreach ($this->globalMiddlewares as $middleware) {
+            (new $middleware)->handle($request);
+        }
+
+        // Затем выполняем route-specific middleware
         foreach ($this->getMiddlewaresForRoute($httpMethod, $uri) as $middleware) {
             $args = explode(':', $middleware);
-            //Создаем объект и вызываем метод handle
-            (new $routeMiddleware[$args[0]])->handle($request, $args[1]?? null);
+            $routeMiddleware = app()->settings->app['routeMiddleware'][$args[0]] ?? null;
+            if ($routeMiddleware) {
+                (new $routeMiddleware)->handle($request, $args[1] ?? null);
+            }
         }
-        //Возвращаем итоговый request
+
         return $request;
     }
 

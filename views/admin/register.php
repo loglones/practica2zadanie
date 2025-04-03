@@ -7,6 +7,8 @@
             <?php endif; ?>
             <h3><?= $message ?? ''; ?></h3>
             <form method="post">
+                <?php $view = new Src\View(); ?>
+                <?= $view->generateCsrfField() ?>
                 <input class="inputLogin" type="text" name="name" placeholder="Введите имя"
                        value="<?= htmlspecialchars($old['name'] ?? '') ?>"
                        pattern="[А-Яа-яЁё\s]{2,50}"

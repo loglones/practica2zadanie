@@ -28,6 +28,10 @@ class Application
         $this->dbRun();
         //Инициализация класса пользователя на основе настроек приложения
         $this->auth::init(new $this->settings->app['identity']);
+        // Инициализация глобальных middleware
+        foreach ($this->settings->app['globalMiddlewares'] as $middleware) {
+            Middleware::single()->addGlobal($middleware);
+        }
 
     }
 

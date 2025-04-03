@@ -10,4 +10,9 @@ return [
         'auth:admin' => App\Middlewares\RoleMiddleware::class,
         'auth:employee' => App\Middlewares\RoleMiddleware::class,
     ],
+    'globalMiddlewares' => [
+        App\Middlewares\CsrfMiddleware::class,
+        App\Middlewares\TrimMiddleware::class,
+        App\Middlewares\XssMiddleware::class,
+    ],
 ];

@@ -1,6 +1,8 @@
 <div class="mainContForFormAndTitles wraper">
     <div class="contForFormCheckDisciplene">
         <form class="checkMarkForDiscipleneAndHoursForm" method="post">
+            <?php $view = new Src\View(); ?>
+            <?= $view->generateCsrfField() ?>
             <div class="contForTitleForm">
                 <p class="titleMakeStudent">Выбор Успеваемости студента</p>
             </div>

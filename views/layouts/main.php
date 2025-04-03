@@ -250,7 +250,7 @@
     </style>
 </header>
 <main>
-    <?= $content ?? '' ?>
+    <?= $content ?? 'Контент не передан' ?>
 </main>
 </body>
 </html>

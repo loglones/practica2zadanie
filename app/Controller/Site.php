@@ -13,13 +13,7 @@ use Src\Auth\Auth;
 class Site
 {
 
-     public function index(Request $request): string
-     {
 
-         //    $departments = Department::where('id', $request->id)->get(); Не работает!!!
-         $departments = Department::all();
-         return (new View())->render('site.department', ['departments' => $departments]);
-     }
      public function signup(Request $request): string
      {
          if ($request->method === 'POST' && User::create($request->all())) {

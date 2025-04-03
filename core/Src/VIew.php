@@ -75,4 +75,10 @@ class View
         echo json_encode($data, JSON_UNESCAPED_UNICODE);
         exit();
     }
+    public function generateCsrfField(): string
+    {
+        $token = bin2hex(random_bytes(32));
+        Session::set('csrf_token', $token);
+        return '<input type="hidden" name="csrf_token" value="'.$token.'">';
+    }
 }

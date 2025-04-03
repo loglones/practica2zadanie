@@ -4,6 +4,8 @@
     </div>
     <div class="contForFormMakeStudent">
         <form class="MakeStudent" method="post">
+            <?php $view = new Src\View(); ?>
+            <?= $view->generateCsrfField() ?>
             <div class="classForSettingForm">
                 <label for="surname">Фамилия</label>
                 <input class="inputForm" type="text" id="surname" name="surname" placeholder="Введите фамилию"
