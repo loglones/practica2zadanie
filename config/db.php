@@ -2,7 +2,7 @@
 return [
     'driver' => 'mysql',
     'host' => 'localhost',
-    'database' => 'dekanat',
+    'database' => 'bderieei_m5',
     'username' => 'root',
     'password' => '',
     'charset' => 'utf8',

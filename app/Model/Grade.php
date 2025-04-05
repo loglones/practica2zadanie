@@ -7,17 +7,18 @@ class Grade extends Model
 {
     public $timestamps = false;
     protected $table = 'grades';
-    protected $fillable = [
-        'student_id', 'discipline_id', 'grade', 'hours', 'control_type', 'date'
-    ];
+    protected $fillable = ['number'];
 
-    public function student()
+    public function students()
     {
-        return $this->belongsTo(Student::class);
+        return $this->belongsToMany(Student::class, 'student_discipline', 'grade_id', 'student_id')
+            ->withPivot('discipline_id');
     }
 
-    public function discipline()
+    public function disciplines()
     {
-        return $this->belongsTo(Discipline::class);
+        return $this->belongsToMany(Discipline::class, 'student_discipline', 'grade_id', 'discipline_id')
+            ->withPivot('student_id');
     }
+
 }

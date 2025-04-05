@@ -38,6 +38,7 @@ class Authorised
                     'patronymic' => $request->patronymic,
                     'gender' => $request->gender,
                     'address' => $request->address,
+                    'user_id' => app()->auth::user()->id,
                     'group_id' => $request->group_id
                 ]);
 
@@ -107,44 +108,47 @@ class Authorised
 
     public function showStudentGrades(Request $request): string
     {
-        // Получаем все дисциплины
         $disciplines = Discipline::all();
-
-        // Получаем уникальные типы контроля из таблицы grades
-        $controlTypes = Grade::select('control_type')
-            ->whereNotNull('control_type')
+        $controlTypes = Discipline::select('control_type')
             ->distinct()
             ->pluck('control_type')
             ->toArray();
 
-        // Обработка формы
         if ($request->method === 'POST') {
             $disciplineName = $request->checkDisciplene;
             $hours = $request->hours;
-            $controlType = $request->control_type; // Получаем тип контроля из формы
+            $controlType = $request->control_type;
 
-            // Получаем оценки по выбранным параметрам
-            $grades = Grade::with(['student', 'discipline'])
-                ->whereHas('discipline', function ($query) use ($disciplineName) {
-                    $query->where('name', $disciplineName);
-                })
-                ->when($hours, function ($query, $hours) {
-                    return $query->where('hours', $hours);
-                })
-                ->when($controlType, function ($query, $controlType) {
-                    return $query->where('control_type', $controlType);
-                })
-                ->get();
+            // Находим дисциплину
+            $discipline = Discipline::where('name', $disciplineName)->first();
 
-            // Формируем результаты для вывода
+            if (!$discipline) {
+                return (string)new View('employee.studentGrades', [
+                    'disciplines' => $disciplines,
+                    'controlTypes' => $controlTypes,
+                    'message' => 'Дисциплина не найдена'
+                ]);
+            }
+
+            // Получаем студентов с их оценками по этой дисциплине
             $results = [];
-            foreach ($grades as $grade) {
+            foreach ($discipline->students as $student) {
+                $grade = $student->grades()
+                    ->wherePivot('discipline_id', $discipline->id)
+                    ->first();
+
+                // Фильтрация по часам и типу контроля
+                if (($hours && $discipline->hours != $hours) ||
+                    ($controlType && $discipline->control_type != $controlType)) {
+                    continue;
+                }
+
                 $results[] = [
-                    'student' => $grade->student->surname . ' ' . $grade->student->name,
-                    'discipline' => $grade->discipline->name,
-                    'grade' => $grade->grade ?? 'нет оценки',
-                    'hours' => $grade->hours,
-                    'control_type' => $grade->control_type ?? 'не указан'
+                    'student' => $student->surname . ' ' . $student->name,
+                    'discipline' => $discipline->name,
+                    'grade' => $grade ? $grade->number : 'нет оценки',
+                    'hours' => $discipline->hours,
+                    'control_type' => $discipline->control_type
                 ];
             }
 
@@ -158,7 +162,6 @@ class Authorised
             ]);
         }
 
-        // GET запрос - показываем форму
         return (string)new View('employee.studentGrades', [
             'disciplines' => $disciplines,
             'controlTypes' => $controlTypes
@@ -167,80 +170,94 @@ class Authorised
 
     public function showGroupGrades(Request $request): string
     {
-        // Получаем все группы и дисциплины для выпадающих списков
         $groups = Group::all();
         $disciplines = Discipline::all();
+        $results = [];
 
         if ($request->method === 'POST') {
-            // Получаем выбранные значения из формы
-            $disciplineName = $request->checkDisciplene;
-            $groupName = $request->group_name;
+            try {
+                $disciplineName = $request->all()['checkDisciplene'] ?? null;
+                $groupName = $request->all()['group_name'] ?? null;
 
-            // Ищем оценки для выбранной группы и дисциплины
-            $grades = Grade::with(['student', 'discipline', 'student.group'])
-                ->whereHas('discipline', function ($query) use ($disciplineName) {
-                    $query->where('name', $disciplineName);
-                })
-                ->whereHas('student.group', function ($query) use ($groupName) {
-                    $query->where('name', $groupName);
-                })
-                ->get();
+                if (!$disciplineName || !$groupName) {
+                    throw new \Exception("Не все параметры переданы");
+                }
 
-            // Формируем результаты для отображения
-            $results = [];
-            foreach ($grades as $grade) {
-                $results[] = [
-                    'student' => $grade->student->surname . ' ' . $grade->student->name,
-                    'group' => $grade->student->group->name,
-                    'discipline' => $grade->discipline->name,
-                    'grade' => $grade->grade ?? 'нет оценки',
-                    'hours' => $grade->hours,
-                    'control_type' => $grade->control_type
-                ];
+                $group = Group::where('name', $groupName)->first();
+                $discipline = Discipline::where('name', $disciplineName)->first();
+
+                if (!$group || !$discipline) {
+                    throw new \Exception("Группа или дисциплина не найдены");
+                }
+
+                $students = $group->students()
+                    ->with(['disciplines' => function($query) use ($discipline) {
+                        $query->where('disciplines.id', $discipline->id);
+                    }])
+                    ->get();
+
+                foreach ($students as $student) {
+                    $grade = $student->disciplines->first()?->pivot->grade_id
+                        ? Grade::find($student->disciplines->first()->pivot->grade_id)
+                        : null;
+
+                    $results[] = [
+                        'student' => $student->surname . ' ' . $student->name,
+                        'group' => $group->name,
+                        'discipline' => $discipline->name,
+                        'grade' => $grade ? $grade->number : 'нет оценки',
+                        'hours' => $discipline->hours,
+                        'control_type' => $discipline->control_type
+                    ];
+                }
+            } catch (\Exception $e) {
+                $message = $e->getMessage();
             }
-
-            return (string)new View('employee.groupGrades', [
-                'groups' => $groups,
-                'disciplines' => $disciplines,
-                'results' => $results,
-                'selectedDiscipline' => $disciplineName,
-                'selectedGroup' => $groupName
-            ]);
         }
 
-        // GET запрос - показываем форму
         return (string)new View('employee.groupGrades', [
             'groups' => $groups,
-            'disciplines' => $disciplines
+            'disciplines' => $disciplines,
+            'results' => $results,
+            'message' => $message ?? null,
+            'selectedDiscipline' => $request->all()['checkDisciplene'] ?? null,
+            'selectedGroup' => $request->all()['group_name'] ?? null
         ]);
     }
 
     public function showGroupDisciplines(Request $request): string
     {
         $groups = Group::all();
+        $disciplines = collect();
 
         if ($request->method === 'POST') {
-            // 1. Находим конкретную группу по ID
-            $group = Group::find($request->group);
+            try {
+                $groupId = $request->all()['group'] ?? null;
 
-            // 2. Проверяем, что группа найдена
-            if (!$group) {
-                throw new \Exception("Группа не найдена");
+                if (!$groupId) {
+                    throw new \Exception("Группа не выбрана");
+                }
+
+                $group = Group::find($groupId);
+
+                if (!$group) {
+                    throw new \Exception("Группа не найдена");
+                }
+
+                $disciplines = Discipline::whereHas('students', function($query) use ($groupId) {
+                    $query->where('group_id', $groupId);
+                })->distinct()->get();
+
+            } catch (\Exception $e) {
+                $message = $e->getMessage();
             }
-
-            // 3. Получаем дисциплины через отношение
-            $disciplines = $group->disciplines;
-
-            return (string)new View('employee.groupDisciplines', [
-                'groups' => $groups,
-                'disciplines' => $disciplines,
-                'selectedGroup' => $request->group
-            ]);
         }
 
         return (string)new View('employee.groupDisciplines', [
             'groups' => $groups,
-            'disciplines' => collect()
+            'disciplines' => $disciplines,
+            'selectedGroup' => $request->all()['group'] ?? null,
+            'message' => $message ?? null
         ]);
     }
 

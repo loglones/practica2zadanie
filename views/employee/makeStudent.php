@@ -45,7 +45,7 @@
             </div>
             <div class="classForSettingForm">
                 <label for="dateBirthday">Введите дату рождения</label>
-                <input class="inputForm" type="date" id="dateBirthday" name="dateBirthday">
+                <input class="inputForm" type="date" id="dateBirthday" name="date_birthday">
             </div>
             <div class="classForSettingForm">
                 <label for="address">Введите адрес проживания</label>
@@ -53,11 +53,17 @@
             </div>
             <div class="classForSettingForm">
                 <label for="group_id">Выберите группу:</label>
-                <select class="inputForm" name="group_id" id="group_id">
-                    <option value="423" selected>423</option>
-                    <option value="421">421</option>
-                    <option value="426">426</option>
+                <select class="inputForm" name="group_id" id="group_id" required>
+                    <?php foreach ($groups as $group): ?>
+                        <option value="<?= htmlspecialchars($group->id) ?>"
+                            <?= (isset($old['group_id']) && $old['group_id'] == $group->id ? 'selected' : '' )?>>
+                            <?= htmlspecialchars($group->name) ?>
+                        </option>
+                    <?php endforeach; ?>
                 </select>
+                <?php if (isset($errors['group_id'])): ?>
+                    <div class="error"><?= implode('<br>', $errors['group_id']) ?></div>
+                <?php endif; ?>
             </div>
             <div>
                 <button type="submit">Создать</button>

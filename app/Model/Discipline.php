@@ -13,4 +13,15 @@ class Discipline extends Model
     {
         return $this->belongsToMany(Group::class, 'group_discipline');
     }
+    public function students()
+    {
+        return $this->belongsToMany(Student::class, 'student_discipline')
+            ->withPivot('grade_id');
+    }
+
+    public function grades()
+    {
+        return $this->belongsToMany(Grade::class, 'student_discipline', 'discipline_id', 'grade_id')
+            ->withPivot('student_id');
+    }
 }
